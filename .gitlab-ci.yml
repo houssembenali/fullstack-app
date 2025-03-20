@@ -1,0 +1,73 @@
+# Image Docker de base pour exécuter les pipelines
+image: docker:20.10.16
+
+# Service Docker-in-Docker nécessaire pour construire des images
+services:
+  - docker:20.10.16-dind
+
+# Configuration des certificats TLS pour Docker
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# Définition des étapes du pipeline
+stages:
+  - build
+  - test
+  - deploy
+
+# Construction de l'image Docker du backend
+build-backend:
+  stage: build
+  script:
+    - cd backend
+    - docker build -t backend-app .
+  only:
+    - main
+    - develop
+
+# Construction de l'image Docker du frontend
+build-frontend:
+  stage: build
+  script:
+    - cd frontend
+    - docker build -t frontend-app .
+  only:
+    - main
+    - develop
+
+# Exécution des tests du backend
+test-backend:
+  stage: test
+  script:
+    - cd backend
+    - docker run backend-app ./mvnw test
+  only:
+    - main
+    - develop
+
+# Exécution des tests du frontend
+test-frontend:
+  stage: test
+  script:
+    - cd frontend
+    - docker run frontend-app npm test
+  only:
+    - main
+    - develop
+
+# Déploiement en environnement de staging
+deploy-staging:
+  stage: deploy
+  script:
+    - echo "Deploy to staging server"
+  only:
+    - develop
+
+# Déploiement en production (manuel)
+deploy-production:
+  stage: deploy
+  script:
+    - echo "Deploy to production server"
+  only:
+    - main
+  when: manual

@@ -1,0 +1,10 @@
+.container {
+  padding: 2em;
+}
+.grid {
+  display: flex;
+  gap: 2em;
+}
+.col-6 {
+  flex: 1;
+}

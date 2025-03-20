@@ -1,0 +1,69 @@
+# Pipeline CI/CD pour l'application de gestion des clients
+name: CI/CD Pipeline
+
+# Déclencheurs du pipeline : sur push ou pull request vers main ou develop
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Construction de l'image Docker du backend Spring Boot
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3  # Récupération du code source
+      - name: Build Backend Docker Image
+        working-directory: backend
+        run: docker build -t backend-app .
+
+  # Construction de l'image Docker du frontend Angular
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3  # Récupération du code source
+      - name: Build Frontend Docker Image
+        working-directory: frontend
+        run: docker build -t frontend-app .
+
+  # Exécution des tests du backend
+  test-backend:
+    needs: build-backend  # Dépend de la construction du backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test Backend
+        working-directory: backend
+        run: docker run backend-app ./mvnw test
+
+  # Exécution des tests du frontend
+  test-frontend:
+    needs: build-frontend  # Dépend de la construction du frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test Frontend
+        working-directory: frontend
+        run: docker run frontend-app npm test
+
+  # Déploiement en environnement de staging (branche develop)
+  deploy-staging:
+    needs: [test-backend, test-frontend]  # Dépend du succès des tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'  # Uniquement sur la branche develop
+    steps:
+      - name: Deploy to Staging
+        run: echo "Deploy to staging server"
+
+  # Déploiement en production (branche main)
+  deploy-production:
+    needs: [test-backend, test-frontend]  # Dépend du succès des tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'  # Uniquement sur la branche main
+    environment:
+      name: production
+      url: https://your-production-url.com
+    steps:
+      - name: Deploy to Production
+        run: echo "Deploy to production server"

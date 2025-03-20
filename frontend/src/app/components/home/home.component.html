@@ -1,0 +1,33 @@
+<div class="p-grid p-justify-center">
+  <div class="p-col-12">
+    <h1 class="text-center">Bienvenue dans notre application de gestion</h1>
+  </div>
+
+  <div class="p-col-12 p-md-4">
+    <p-card header="Gestion des Clients" [style]="{'margin-bottom': '2em'}">
+      <p>Accédez à la liste des clients et gérez leurs informations.</p>
+      <ng-template pTemplate="footer">
+        <button pButton type="button" label="Accéder" routerLink="/clients" class="p-button-primary"></button>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <div class="p-col-12 p-md-4">
+    <p-card header="Gestion des Produits" [style]="{'margin-bottom': '2em'}">
+      <p>Gérez votre catalogue de produits (nécessite une connexion).</p>
+      <ng-template pTemplate="footer">
+        <button pButton type="button" label="Accéder" routerLink="/products" 
+                [disabled]="!(isAuthenticated$ | async)" class="p-button-primary"></button>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <div class="p-col-12 p-md-4" *ngIf="!(isAuthenticated$ | async)">
+    <p-card header="Connexion" [style]="{'margin-bottom': '2em'}">
+      <p>Connectez-vous pour accéder à toutes les fonctionnalités.</p>
+      <ng-template pTemplate="footer">
+        <button pButton type="button" label="Se connecter" routerLink="/login" class="p-button-primary"></button>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

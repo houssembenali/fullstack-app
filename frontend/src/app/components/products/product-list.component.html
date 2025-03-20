@@ -1,0 +1,74 @@
+<div class="card">
+  <h2>Gestion des Produits</h2>
+
+  <!-- Formulaire de produit -->
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="p-fluid">
+    <div class="p-field">
+      <label for="name">Nom</label>
+      <input id="name" type="text" pInputText formControlName="name">
+      <small class="p-error" *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched">
+        Le nom est requis
+      </small>
+    </div>
+
+    <div class="p-field">
+      <label for="description">Description</label>
+      <textarea id="description" pInputTextarea formControlName="description" rows="3"></textarea>
+      <small class="p-error" *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched">
+        La description est requise
+      </small>
+    </div>
+
+    <div class="p-field">
+      <label for="price">Prix</label>
+      <p-inputNumber id="price" formControlName="price" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2">
+      </p-inputNumber>
+      <small class="p-error" *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+        Le prix doit être supérieur à 0
+      </small>
+    </div>
+
+    <div class="p-field">
+      <label for="stock">Stock</label>
+      <p-inputNumber id="stock" formControlName="stock" [showButtons]="true" [min]="0">
+      </p-inputNumber>
+      <small class="p-error" *ngIf="productForm.get('stock')?.invalid && productForm.get('stock')?.touched">
+        Le stock doit être supérieur à 0
+      </small>
+    </div>
+
+    <div class="p-field">
+      <button pButton type="submit" [label]="editMode ? 'Mettre à jour' : 'Ajouter'" 
+              [disabled]="productForm.invalid" class="p-button-primary"></button>
+      <button pButton type="button" label="Annuler" class="p-button-secondary" 
+              (click)="resetForm()" *ngIf="editMode"></button>
+    </div>
+  </form>
+
+  <!-- Liste des produits -->
+  <p-table [value]="(products$ | async) || []" [loading]="(loading$ | async) || false" styleClass="p-datatable-striped">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Nom</th>
+        <th>Description</th>
+        <th>Prix</th>
+        <th>Stock</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>{{product.name}}</td>
+        <td>{{product.description}}</td>
+        <td>{{product.price | currency:'EUR'}}</td>
+        <td>{{product.stock}}</td>
+        <td>
+          <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
+                  (click)="onEdit(product)"></button>
+          <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                  (click)="onDelete(product.id)"></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
